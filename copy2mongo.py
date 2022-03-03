@@ -1,14 +1,19 @@
 import xml.sax
 import pymongo
 
-global i
-i=1
+
+k= 1
 class MyHandler(xml.sax.ContentHandler):
     #初始化
     def __init__(self):
         print('init')
         #文件开始读
     def startElement(self,name,attrs):
+        global k
+        k+=1
+        if(k<45806997): # 22.2.25 数据库崩溃 从崩溃点恢复写入
+            return
+
         if attrs.__len__() > 0:
             try:
                 doc= {} # mongoDB要求以字典的形式插入一行数据
@@ -17,10 +22,7 @@ class MyHandler(xml.sax.ContentHandler):
                     value= attrs.getValue(name) # 用属性名索引数据
                     doc[name]= value
                 mycol.insert_one(doc)
-                i+=1
-                if(i%1000==0):
-                    print("*")
-
+                print("post "+ k +"inserted")
             except BaseException:
                 return
 
